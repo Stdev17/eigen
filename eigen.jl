@@ -1,29 +1,24 @@
 using LinearAlgebra
+using IterativeSolvers
+# using CUDA
 
-include("./utils/types.jl")
-using .Utils
+# include("./utils/types.jl")
+# using .Utils
 
-A = rand(1024, 1024)
+dim = 819
+light = 64
 
-Utils.subtypetree(Number)
+# CUDA.@profile begin
+A = rand(dim, dim)
+B = rand(light, light)
+# end
 
-#= 
 function power_iteration(A, num_simulations::Int64)
-    # Ideally choose a random vector
-    # To decrease the chance that our vector
-    # Is orthogonal to the eigenvector
-    b_k = np.random.rand(A.shape[1])
+    lambda, v = powm(A, tol=1e-3, maxiter=num_simulations)
+    return v
+end
 
-    for _ in range(num_simulations):
-        # calculate the matrix-by-vector product Ab
-        b_k1 = np.dot(A, b_k)
+# warm up
+@time power_iteration(B, 1)
 
-        # calculate the norm
-        b_k1_norm = np.linalg.norm(b_k1)
-
-        # re normalize the vector
-        b_k = b_k1 / b_k1_norm
-
-    return b_k
-
-power_iteration(np.array([[0.5, 0.5], [0.2, 0.8]]), 10) =#
+@time power_iteration(A, 16)
